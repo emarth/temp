@@ -9,7 +9,7 @@ use std::io;
 use std::io::{BufReader, Read, Write};
 use std::net;
 
-use serde::{Deserialize};
+use serde::Deserialize;
 
 use docopt::Docopt;
 
@@ -178,6 +178,7 @@ impl OpenConnection {
         }
 
         if ev.is_writable() {
+            println!("HERE! :3");
             self.do_tls_write_and_handle_error();
         }
 
@@ -614,17 +615,32 @@ fn make_config(args: &Args) -> Arc<rustls::ServerConfig> {
 fn main() {
     let version = env!("CARGO_PKG_NAME").to_string() + ", version: " + env!("CARGO_PKG_VERSION");
 
-    let args: Args = Docopt::new(USAGE)
+    let args: Args = /*Docopt::new(USAGE)
         .map(|d| d.help(true))
         .map(|d| d.version(Some(version)))
         .and_then(|d| d.deserialize())
-        .unwrap_or_else(|e| e.exit());
+        .unwrap_or_else(|e| e.exit());*/ Args {cmd_echo: false,
+                                            cmd_http: false,
+                                            flag_port: Some(8000),
+                                            flag_verbose: true,
+                                            flag_protover: vec![],
+                                            flag_suite: vec![],
+                                            flag_proto: vec![],
+                                            flag_certs: Some(String::from("cryptotest/cert.crt")),
+                                            flag_key: Some(String::from("cryptotest/priv.key")),
+                                            flag_ocsp: None,
+                                            flag_auth: None,
+                                            flag_require_auth: false,
+                                            flag_resumption: false,
+                                            flag_tickets: false,
+                                            arg_fport: Some(3000)
+                                        };
 
-    /*if args.flag_verbose {
+    if args.flag_verbose {
         env_logger::Builder::new()
             .parse_filters("trace")
             .init();
-    }*/
+    }
 
     let mut addr: net::SocketAddr = "0.0.0.0:443".parse().unwrap();
     addr.set_port(args.flag_port.unwrap_or(443));
